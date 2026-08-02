@@ -122,7 +122,12 @@ async def upstream_listener():
                     
                     for client in connected_clients:
                         try:
-                            await client.send_json({"time": time_ms, "price": price})
+                            await client.send_json({
+                                "time": time_ms, 
+                                "price": price,
+                                "quantity": quantity,
+                                "is_buyer_maker": is_maker
+                            })
                         except Exception:
                             pass
                             

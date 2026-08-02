@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { createChart } from 'lightweight-charts';
 
-export default function Chart({ asset, interval }) {
+export default function Chart({ asset, interval, onTrade }) {
   const chartContainerRef = useRef(null);
   const chartInstanceRef = useRef(null);
   const seriesRef = useRef(null);
@@ -65,8 +65,18 @@ export default function Chart({ asset, interval }) {
           wsRef.current.onmessage = (event) => {
             const msg = JSON.parse(event.data);
             const price = msg.price;
+            const quantity = msg.quantity;
             const msgTimeSec = Math.floor(msg.time / 1000);
             const minuteTime = msgTimeSec - (msgTimeSec % 60);
+
+            if (onTrade) {
+                onTrade({
+                    price: price,
+                    size: quantity,
+                    time: new Date(msg.time).toLocaleTimeString(),
+                    isBuy: !msg.is_buyer_maker // If buyer is NOT maker, it's a market buy (taker)
+                });
+            }
 
             if (!lastCandle) {
               lastCandle = { time: minuteTime, open: price, high: price, low: price, close: price };
