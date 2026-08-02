@@ -4,4 +4,5 @@ psycopg2-binary
 websocket-client
 fastapi
 uvicorn
+websockets
 sqlalchemy
