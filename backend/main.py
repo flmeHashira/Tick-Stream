@@ -3,6 +3,7 @@ import asyncio
 import json
 import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from psycopg2.extras import execute_values
 from database import engine
 from sqlalchemy import text
@@ -10,6 +11,14 @@ from pathlib import Path
 from seed import run_seed
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"], # Your Vite dev server
+    allow_credentials=True,
+    allow_methods=["*"], # Allows all methods including OPTIONS
+    allow_headers=["*"],
+)
 
 connected_clients = set()
 tick_buffer = []
