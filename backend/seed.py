@@ -117,13 +117,20 @@ def fetch_binance_data(db_ticker, conn):
 
 def run_seed():
     print("Starting database seeding process...")
-    conn = psycopg2.connect(
-        host=os.environ.get("DB_HOST", "db"),
-        database=os.environ.get("DB_NAME", "market"),
-        user=os.environ.get("DB_USER", "postgres"),
-        password=os.environ.get("DB_PASSWORD", "admin"),
-        port="5432"
-    )
+    db_url = os.environ.get("DATABASE_URL")
+    if db_url:
+        # Supabase requires SSL
+        if "?" not in db_url:
+            db_url += "?sslmode=require"
+        conn = psycopg2.connect(db_url)
+    else:
+        conn = psycopg2.connect(
+            host=os.environ.get("DB_HOST", "db"),
+            database=os.environ.get("DB_NAME", "market"),
+            user=os.environ.get("DB_USER", "postgres"),
+            password=os.environ.get("DB_PASSWORD", "admin"),
+            port="5432"
+        )
 
     # 1. Seed AAPL via Yahoo
     fetch_yahoo_data("AAPL", "AAPL", conn)

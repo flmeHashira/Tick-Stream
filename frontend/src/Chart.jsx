@@ -33,8 +33,9 @@ export default function Chart({ asset, interval, onTrade }) {
     // 2. Fetch and Process Data via Proxy
     const loadData = async () => {
       try {
-        // Uses the proxy in vite.config.js to hit localhost:8000
-        const response = await fetch(`/api/v1/candles?asset=${asset}&interval=${interval}`);
+        // Use VITE_API_URL if in production, fallback to proxy if local
+        const API_URL = import.meta.env.VITE_API_URL || '';
+        const response = await fetch(`${API_URL}/api/v1/candles?asset=${asset}&interval=${interval}`);
         const data = await response.json();
 
         const parsedData = data.map(d => ({
@@ -58,9 +59,9 @@ export default function Chart({ asset, interval, onTrade }) {
           candlestickSeries.setData(parsedData);
           let lastCandle = parsedData.length > 0 ? { ...parsedData[parsedData.length - 1] } : null;
 
-          // Uses the proxy to hit WS localhost:8000
-          const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-          wsRef.current = new WebSocket(`${protocol}//${window.location.host}/ws/BTC`);
+          // Use VITE_WS_URL if in production, fallback to local proxy
+          const WS_URL = import.meta.env.VITE_WS_URL || `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;
+          wsRef.current = new WebSocket(`${WS_URL}/ws/BTC`);
           
           wsRef.current.onmessage = (event) => {
             const msg = JSON.parse(event.data);
