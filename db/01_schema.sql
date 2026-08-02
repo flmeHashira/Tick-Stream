@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS stock_candles (
     high NUMERIC(12, 4) NOT NULL,
     low NUMERIC(12, 4) NOT NULL,
     close NUMERIC(12, 4) NOT NULL,
-    volume BIGINT NOT NULL,
+    volume NUMERIC(20, 8) NOT NULL,
     PRIMARY KEY (ticker, datetime)
 );
 

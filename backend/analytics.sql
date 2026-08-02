@@ -20,6 +20,7 @@ FROM (
             ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
         ) AS close_price
     FROM raw_trades
+    WHERE trade_time >= :start_time AND trade_time < :end_time
 ) AS subquery
 GROUP BY minute
 ORDER BY minute DESC;

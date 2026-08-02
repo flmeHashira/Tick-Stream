@@ -6,3 +6,4 @@ fastapi
 uvicorn
 websockets
 sqlalchemy
+requests
