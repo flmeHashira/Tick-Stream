@@ -12,11 +12,14 @@ from seed import run_seed
 
 app = FastAPI()
 
+allowed_origins_str = os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173")
+allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"], # Your Vite dev server
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"], # Allows all methods including OPTIONS
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
