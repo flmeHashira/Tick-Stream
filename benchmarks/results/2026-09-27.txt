@@ -1,0 +1,25 @@
+TickStream Benchmark Results — 2026-09-27
+
+Environment:
+Dockerized PostgreSQL 15
+MacBook Air M1
+8 GB RAM
+
+Batch Benchmark V2 (10,000 ticks, 5 iterations)
+Batch | Mean Dur (s) | Mean Thr (t/s) | Mean Batch Lat (ms) | P95 Batch Lat (ms)
+1     | 0.8676       | 11563.57       | 0.0864               | 0.1103
+10    | 0.3091       | 35793.39       | 0.3001               | 0.6869
+100   | 0.1385       | 72985.58       | 1.2968               | 1.4281
+500   | 0.1395       | 72407.20       | 6.5001               | 8.0687
+
+End-to-End Rollup Benchmark V3
+Ticks    | Agg Time (ms) | Upsert Time (ms) | Total Time (ms)
+10000    | 21.73         | 3.11             | 24.83
+100000   | 125.79        | 2.25             | 128.03
+1000000  | 1415.38       | 7.87             | 1423.25
+
+Async Ingestion & Event-Loop Benchmark V2
+Target (msg/s) | Received | Persisted | Remaining in Buffer at Cutoff | P50 Lag (ms) | P95 Lag (ms)
+100            | 500      | 500        | 0                             | 1.85        | 3.68
+500            | 2500     | 2500       | 0                             | 0.01        | 1.13
+1000           | 4989     | 4900       | 89                            | 0.01        | 0.94
