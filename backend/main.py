@@ -13,6 +13,10 @@ from seed import run_seed
 
 app = FastAPI()
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 allowed_origins_str = os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173")
 allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",")]
 
