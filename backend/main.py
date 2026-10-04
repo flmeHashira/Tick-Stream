@@ -17,6 +17,40 @@ app = FastAPI()
 async def health():
     return {"status": "ok"}
 
+@app.get("/ready")
+def ready(asset: str = "BTCUSDT"):
+    if asset not in {"BTCUSDT", "AAPL"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid asset. Use AAPL or BTCUSDT."
+        )
+
+    with engine.connect() as conn:
+        result = conn.execute(
+            text("""
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM stock_candles
+                    WHERE ticker = :ticker
+                )
+            """),
+            {"ticker": asset}
+        )
+        is_ready = result.scalar()
+
+    if not is_ready:
+        raise HTTPException(
+            status_code=503,
+            detail=f"{asset} data is still initializing"
+        )
+
+    return {
+        "status": "ready",
+        "asset": asset
+    }
+
+
+
 allowed_origins_str = os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173")
 allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",")]
 
@@ -169,13 +203,22 @@ def get_candles(asset: str, interval: str = "1m"):
 
     if asset == "AAPL" or asset == "BTCUSDT":
         if interval == "1m":
-            # Just fetch the raw 1m candles directly
-            query = text("""
-                SELECT datetime, open, high, low, close, volume 
-                FROM stock_candles 
-                WHERE ticker = :ticker
-                ORDER BY datetime ASC
-            """)
+            # Just fetch the raw 1m candles directly*
+            if asset == "BTCUSDT":
+                query = text("""
+                    SELECT datetime, open, high, low, close, volume 
+                    FROM stock_candles 
+                    WHERE ticker = :ticker
+                        AND datetime >= NOW() - INTERVAL '7 days'
+                    ORDER BY datetime ASC
+                """)
+            else:
+                query = text("""
+                    SELECT datetime, open, high, low, close, volume 
+                    FROM stock_candles 
+                    WHERE ticker = :ticker
+                    ORDER BY datetime ASC
+                """)
         else:
             # Rollup logic for 30m, 1d, 7d
             if interval == "30m":
